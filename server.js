@@ -8,6 +8,10 @@ const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
 const runner            = require('./test-runner');
 
+let helmet = require('helmet');
+let mongodb = require('mongodb');
+let mongoose = require('mongoose');
+
 const app = express();
 
 app.use('/public', express.static(process.cwd() + '/public'));
@@ -16,6 +20,21 @@ app.use(cors({origin: '*'})); //For FCC testing purposes only
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'"]
+  }
+}));
+
+mongoose.connect(process.env['DB'])
+  .then(() => {
+    console.log('Mongoose connected');
+  })
+  .catch((err) => {
+    console.log('error', err);
+  });
 
 //Index page (static HTML)
 app.route('/')
